@@ -1,22 +1,23 @@
 package com.greentechpay.bff.admin.controller;
 
+import com.greentechpay.bff.admin.client.request.FilterDto;
 import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
 import com.greentechpay.bff.admin.dto.response.PaymentHistoryDto;
 import com.greentechpay.bff.admin.service.PaymentHistoryService;
 import com.greentechpay.bff.admin.dto.response.PageResponse;
+import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -29,33 +30,36 @@ public class PaymentHistoryController {
 
     private final PaymentHistoryService paymentHistoryService;
 
-    @GetMapping("/get-all")
-    public ResponseEntity<PageResponse<List<PaymentHistoryDto>>>
-    getAll(@RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer page,
-           @RequestParam @Min(value = 0, message = "elements size can not be less than 0") Integer size) {
-        return ResponseEntity.ok(paymentHistoryService.getAll(page, size));
-    }
-
-    @GetMapping("/get-by-user")
-    public ResponseEntity<PageResponse<Map<LocalDate, List<PaymentHistoryDto>>>>
-    getAllByUserId(@RequestParam @NotNull(message = "page can not be null") Integer page,
-                   @RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer size,
-                   @RequestParam @Min(value = 0, message = "elements size can not be less than 0") String userId) {
-        return ResponseEntity.ok(paymentHistoryService.getAllWithPageByUserId(page, size, userId));
-    }
-
     @GetMapping("/get-payment-history-filter")
     public ResponseEntity<PageResponse<List<PaymentHistoryDto>>>
     getAllWithPageByFilter(@RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer page,
                            @RequestParam @Min(value = 0, message = "elements size can not be less than 0") Integer size,
-                           @RequestParam String userId,
-                           @RequestParam @Past(message = "startDate must be a past date") LocalDate startDate,
-                           @RequestParam @Past(message = "startDate must be a past date") LocalDate endDate,
-                           @RequestParam String transactionId,
-                           @RequestParam List<Currency> currencies,
-                           @RequestParam List<TransferType> types,
-                           @RequestParam List<Status> statuses) {
+                           @RequestParam @Nullable String userId,
+                           @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate startDate,
+                           @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
+                           @RequestParam @Nullable String transactionId,
+                           @RequestParam @Nullable List<Currency> currencies,
+                           @RequestParam @Nullable List<TransferType> types,
+                           @RequestParam @Nullable List<Status> statuses) {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(page, size, userId, startDate, endDate,
                 transactionId, currencies, types, statuses));
     }
+
+    @GetMapping("/category-statistics")
+    public ResponseEntity<Map<String, BigDecimal>> getCategoryStatistics(@RequestParam @Nullable String userId,
+                                                                         @RequestParam @Nullable LocalDate startDate,
+                                                                         @RequestParam @Nullable LocalDate endDate) {
+        return ResponseEntity.ok(paymentHistoryService.getCategoryStatistics(userId, startDate, endDate));
+    }
+
+    @GetMapping("/service-statistics")
+    public ResponseEntity<PageResponse<Map<String, BigDecimal>>>
+    getServiceStatus(@RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer page,
+                     @RequestParam @Min(value = 0, message = "elements size can not be less than 0") Integer size,
+                     @RequestParam @NotBlank Integer serviceId,
+                     @RequestParam @Nullable LocalDate startDate,
+                     @RequestParam @Nullable LocalDate endDate) {
+        return ResponseEntity.ok(paymentHistoryService.getServiceStatics(page, size, serviceId, startDate, endDate));
+    }
+
 }

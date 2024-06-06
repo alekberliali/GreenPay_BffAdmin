@@ -1,11 +1,15 @@
 package com.greentechpay.bff.admin.service;
 
+import com.greentechpay.bff.admin.client.ServiceClient;
 import com.greentechpay.bff.admin.client.request.FilterDto;
 import com.greentechpay.bff.admin.client.request.PageRequestDto;
 import com.greentechpay.bff.admin.client.PaymentHistoryClient;
+import com.greentechpay.bff.admin.client.request.RequestDto;
+import com.greentechpay.bff.admin.client.request.StatisticCriteria;
 import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
+import com.greentechpay.bff.admin.dto.request.PaymentHistory;
 import com.greentechpay.bff.admin.dto.response.PageResponse;
 import com.greentechpay.bff.admin.dto.response.PaymentHistoryDto;
 import jakarta.validation.Valid;
@@ -13,46 +17,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentHistoryService {
 
     private final PaymentHistoryClient paymentHistoryClient;
-
-    public PageResponse<List<PaymentHistoryDto>> getAll(Integer page, Integer size) {
-        PageRequestDto pageRequestDto = new PageRequestDto(page, size);
-        var response = Objects.requireNonNull(paymentHistoryClient.getAll(pageRequestDto).getBody());
-        var content = response.getContent();
-
-        return PageResponse.<List<PaymentHistoryDto>>builder()
-                .totalElements(response.getTotalElements())
-                .totalPages(response.getTotalPages())
-                .content(content)
-                .build();
-    }
-
-    public PageResponse<Map<LocalDate, List<PaymentHistoryDto>>> getAllWithPageByUserId(Integer page, Integer size,
-                                                                                        String userId) {
-        PageRequestDto pageRequestDto = new PageRequestDto(page, size);
-        var response = Objects.requireNonNull(paymentHistoryClient.getAllWithPageByUserId(userId, pageRequestDto).getBody());
-        return PageResponse.<Map<LocalDate, List<PaymentHistoryDto>>>builder()
-                .totalPages(response.getTotalPages())
-                .totalElements(response.getTotalElements())
-                .content(response.getContent())
-                .build();
-    }
+    private final ServiceClient serviceClient;
 
     public PageResponse<List<PaymentHistoryDto>>
     getAllWithPageByFilter(Integer page, Integer size, String userId, LocalDate startDate, LocalDate endDate,
                            String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
-        @Valid PageRequestDto pageRequestDto = new PageRequestDto(page, size);
+        PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
-                .pageRequestDto(pageRequestDto)
                 .userId(userId)
                 .startDate(startDate)
                 .endDate(endDate)
@@ -62,12 +42,67 @@ public class PaymentHistoryService {
                 .statuses(statuses)
                 .build();
 
-        var response = Objects.requireNonNull(paymentHistoryClient.getAllWithPageByFilter(filterDto).getBody());
+        var requestDto = RequestDto.<FilterDto>builder()
+                .pageRequestDto(pageRequestDto)
+                .data(filterDto)
+                .build();
+        var request = Objects.requireNonNull(paymentHistoryClient.getAllWithPageByFilter(requestDto).getBody());
+        List<PaymentHistoryDto> response = new ArrayList<>();
+        for (PaymentHistory ph : request.getContent()) {
+            var dto = PaymentHistoryDto.builder()
+                    .id(ph.getId())
+                    .amount(ph.getAmount())
+                    .userId(ph.getUserId())
+                    .amount(ph.getAmount())
+                    .toUser(ph.getToUser())
+                    .vendorName(serviceClient.getVendorNameById(ph.getVendorId()))
+                    .serviceName(serviceClient.getNameById(ph.getServiceId()))
+                    .transferType(ph.getTransferType())
+                    .paymentDate(ph.getPaymentDate())
+                    .status(ph.getStatus())
+                    .build();
+            response.add(dto);
+        }
 
         return PageResponse.<List<PaymentHistoryDto>>builder()
-                .totalPages(response.getTotalPages())
-                .totalElements(response.getTotalElements())
-                .content(response.getContent())
+                .totalPages(request.getTotalPages())
+                .totalElements(request.getTotalElements())
+                .content(response)
+                .build();
+    }
+
+    public Map<String, BigDecimal> getCategoryStatistics(String userId, LocalDate startDate, LocalDate endDate) {
+        var statisticCriteria = StatisticCriteria.builder()
+                .userId(userId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+        return paymentHistoryClient.getCategoryStatistics(statisticCriteria).getBody();
+    }
+
+    public PageResponse<Map<String, BigDecimal>> getServiceStatics(Integer page, Integer size, Integer serviceId,
+                                                                   LocalDate startDate, LocalDate endDate) {
+        var statisticCriteria = StatisticCriteria.builder()
+                .serviceId(serviceId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+        var pageRequestDto = new PageRequestDto(page, size);
+        var dto = RequestDto.<StatisticCriteria>builder()
+                .pageRequestDto(pageRequestDto)
+                .data(statisticCriteria)
+                .build();
+        var request = paymentHistoryClient.getServiceStatics(dto).getBody();
+        Map<String, BigDecimal> response = new HashMap<>();
+        assert request != null;
+        for (Integer id : request.getContent().keySet()) {
+            var serviceName = serviceClient.getNameById(id);
+            response.put(serviceName, request.getContent().get(id));
+        }
+        return PageResponse.<Map<String, BigDecimal>>builder()
+                .totalPages(request.getTotalPages())
+                .totalElements(request.getTotalElements())
+                .content(response)
                 .build();
     }
 }

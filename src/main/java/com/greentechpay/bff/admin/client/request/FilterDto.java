@@ -1,5 +1,6 @@
 package com.greentechpay.bff.admin.client.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
@@ -11,8 +12,8 @@ import java.util.List;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FilterDto {
-    private PageRequestDto pageRequestDto;
     private String userId;
     private LocalDate startDate;
     private LocalDate endDate;
