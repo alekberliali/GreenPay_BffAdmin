@@ -1,6 +1,5 @@
 package com.greentechpay.bff.admin.controller;
 
-import com.greentechpay.bff.admin.client.request.FilterDto;
 import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
@@ -10,7 +9,6 @@ import com.greentechpay.bff.admin.dto.response.PageResponse;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
