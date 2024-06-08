@@ -57,8 +57,8 @@ public class PaymentHistoryService {
                     .toUser(ph.getToUser())
                     .requestField(ph.getRequestField())
                     .senderRequestId(ph.getSenderRequestId())
-                    .vendorName(serviceClient.getVendorNameById(ph.getVendorId()).getData())
-                    .serviceName(serviceClient.getNameById(ph.getServiceId()).getData())
+                    .vendorName(serviceClient.getVendorNameById(ph.getVendorId()).getData().getVendorName())
+                    .serviceName(serviceClient.getNameById(ph.getServiceId()).getData().getName())
                     .transferType(ph.getTransferType())
                     .paymentDate(ph.getPaymentDate())
                     .status(ph.getStatus())
@@ -98,7 +98,7 @@ public class PaymentHistoryService {
         Map<String, BigDecimal> response = new HashMap<>();
         assert request != null;
         for (Integer id : request.getContent().keySet()) {
-            var serviceName = serviceClient.getNameById(id).getData();
+            var serviceName = serviceClient.getNameById(id).getData().getName();
             response.put(serviceName, request.getContent().get(id));
         }
         return PageResponse.<Map<String, BigDecimal>>builder()

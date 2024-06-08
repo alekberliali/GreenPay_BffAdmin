@@ -1,6 +1,7 @@
 package com.greentechpay.bff.admin.client;
 
 import com.greentechpay.bff.admin.client.response.BaseResponse;
+import com.greentechpay.bff.admin.client.response.ResponseData;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ServiceClient {
 
     @GetMapping("/Service/GetServiceNameById/{id}")
-    BaseResponse<String> getNameById(@PathVariable Integer id);
+    BaseResponse<ResponseData> getNameById(@PathVariable Integer id);
 
-    @GetMapping("/Vendors/GetVendorNameById{id}")
-    BaseResponse<String> getVendorNameById(@PathVariable Integer id);
+    @GetMapping("/Vendors/GetVendorNameById/{id}")
+    BaseResponse<ResponseData> getVendorNameById(@PathVariable Integer id);
 }
