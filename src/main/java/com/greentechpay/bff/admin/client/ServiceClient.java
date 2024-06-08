@@ -13,6 +13,6 @@ public interface ServiceClient {
     @GetMapping("/Service/GetServiceNameById/{id}")
     BaseResponse<String> getNameById(@PathVariable Integer id);
 
-    @GetMapping("/Vendors/GetVendorNameByIde/{id}")
+    @GetMapping("/Vendors/GetVendorNameById{id}")
     BaseResponse<String> getVendorNameById(@PathVariable Integer id);
 }
