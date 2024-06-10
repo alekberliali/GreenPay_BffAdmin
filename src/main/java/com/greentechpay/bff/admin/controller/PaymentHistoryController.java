@@ -24,6 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/payment-history")
 @Validated
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class PaymentHistoryController {
 
     private final PaymentHistoryService paymentHistoryService;
@@ -36,10 +37,11 @@ public class PaymentHistoryController {
                            @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate startDate,
                            @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
                            @RequestParam @Nullable String transactionId,
+                           @RequestParam @Nullable Integer vendorId,
                            @RequestParam @Nullable List<Currency> currencies,
                            @RequestParam @Nullable List<TransferType> types,
                            @RequestParam @Nullable List<Status> statuses) {
-        return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(page, size, userId, startDate, endDate,
+        return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(page, size, userId, vendorId, startDate, endDate,
                 transactionId, currencies, types, statuses));
     }
 

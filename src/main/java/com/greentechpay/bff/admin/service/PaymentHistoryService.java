@@ -14,6 +14,7 @@ import com.greentechpay.bff.admin.dto.response.PageResponse;
 import com.greentechpay.bff.admin.dto.response.PaymentHistoryDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
@@ -29,11 +30,12 @@ public class PaymentHistoryService {
     private final ServiceClient serviceClient;
 
     public PageResponse<List<PaymentHistoryDto>>
-    getAllWithPageByFilter(Integer page, Integer size, String userId, LocalDate startDate, LocalDate endDate,
+    getAllWithPageByFilter(Integer page, Integer size, String userId, Integer vendorId, LocalDate startDate, LocalDate endDate,
                            String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
                 .userId(userId)
+                .vendorId(vendorId)
                 .startDate(startDate)
                 .endDate(endDate)
                 .transactionId(transactionId)
