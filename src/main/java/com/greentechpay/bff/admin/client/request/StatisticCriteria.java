@@ -9,7 +9,6 @@ import java.time.LocalDate;
 @Builder
 public class StatisticCriteria {
     String userId;
-    Integer serviceId;
     LocalDate startDate;
     LocalDate endDate;
 }

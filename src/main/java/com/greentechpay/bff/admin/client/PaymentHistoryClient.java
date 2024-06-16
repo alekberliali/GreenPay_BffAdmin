@@ -3,7 +3,7 @@ package com.greentechpay.bff.admin.client;
 import com.greentechpay.bff.admin.client.request.FilterDto;
 import com.greentechpay.bff.admin.client.request.RequestDto;
 import com.greentechpay.bff.admin.client.request.StatisticCriteria;
-import com.greentechpay.bff.admin.dto.request.PaymentHistory;
+import com.greentechpay.bff.admin.client.response.PaymentHistory;
 import com.greentechpay.bff.admin.dto.response.PageResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -23,4 +23,7 @@ public interface PaymentHistoryClient {
 
     @PostMapping(value = "/payment-history/service-statistics")
     ResponseEntity<PageResponse<Map<Integer, BigDecimal>>> getServiceStatics(RequestDto<StatisticCriteria> requestDto);
+
+    @PostMapping(value = "/payment-history/merchant-statistics")
+    ResponseEntity<Map<Integer, BigDecimal>> getMerchantStatistics(StatisticCriteria statisticCriteria);
 }
