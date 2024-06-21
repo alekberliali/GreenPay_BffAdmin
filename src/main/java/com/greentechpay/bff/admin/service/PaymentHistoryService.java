@@ -48,6 +48,7 @@ public class PaymentHistoryService {
             return set;
         }
     }
+
     public PageResponse<List<PaymentHistoryDto>>
     getAllWithPageByFilter(Integer page, Integer size, String userId, Integer vendorId, LocalDate startDate, LocalDate endDate,
                            String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
@@ -85,8 +86,10 @@ public class PaymentHistoryService {
                     .vendorName(vendorMap.get(ph.getVendorId()))
                     .serviceName(serviceMap.get(ph.getServiceId()))
                     .merchantName(merchantMap.get(ph.getMerchantId()))
+                    .transactionId(ph.getTransactionId())
                     .transferType(ph.getTransferType())
                     .paymentDate(ph.getPaymentDate())
+                    .currency(ph.getCurrency())
                     .status(ph.getStatus())
                     .build();
             response.add(dto);
@@ -107,6 +110,7 @@ public class PaymentHistoryService {
                 .build();
         return paymentHistoryClient.getCategoryStatistics(statisticCriteria).getBody();
     }
+
     public Map<String, BigDecimal> getMerchantStatistics(LocalDate startDate, LocalDate endDate) {
         var statisticsCriteria = StatisticCriteria.builder()
                 .startDate(startDate)
@@ -125,8 +129,9 @@ public class PaymentHistoryService {
         return response;
     }
 
-    public PageResponse<Map<String, BigDecimal>> getServiceStatics(Integer page, Integer size, LocalDate startDate, LocalDate endDate) {
+    public PageResponse<Map<String, BigDecimal>> getServiceStatics(Integer page, Integer size, Integer vendorId, LocalDate startDate, LocalDate endDate) {
         var statisticCriteria = StatisticCriteria.builder()
+                .vendorId(vendorId)
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
@@ -150,5 +155,16 @@ public class PaymentHistoryService {
                 .totalElements(request.getTotalElements())
                 .content(response)
                 .build();
+    }
+
+    public Map<LocalDate, BigDecimal> getCategoryStatisticsByCategoryName(String categoryName, Integer vendorId,
+                                                                          LocalDate startDate, LocalDate endDate) {
+        var statisticsCriteria = StatisticCriteria.builder()
+                .categoryName(categoryName)
+                .vendorId(vendorId)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+        return paymentHistoryClient.getCategoryStatisticsByName(statisticsCriteria).getBody();
     }
 }

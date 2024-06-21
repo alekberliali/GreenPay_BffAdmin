@@ -1,5 +1,6 @@
 package com.greentechpay.bff.admin.dto.response;
 
+import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class PaymentHistoryDto {
     private String vendorName;
     private String toUser;
     private String requestField;
+    private String externalPaymentId;
     private String serviceName;
     private String merchantName;
     private String senderRequestId;
@@ -23,6 +25,7 @@ public class PaymentHistoryDto {
     private String receiverIban;
     private TransferType transferType;
     private LocalDateTime paymentDate;
+    private Currency currency;
     private String transactionId;
     private Status status;
 }

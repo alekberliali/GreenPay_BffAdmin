@@ -9,6 +9,8 @@ import java.time.LocalDate;
 @Builder
 public class StatisticCriteria {
     String userId;
+    Integer vendorId;
+    String categoryName;
     LocalDate startDate;
     LocalDate endDate;
 }

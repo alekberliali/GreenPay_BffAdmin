@@ -8,6 +8,7 @@ import com.greentechpay.bff.admin.service.PaymentHistoryService;
 import com.greentechpay.bff.admin.dto.response.PageResponse;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -50,18 +51,30 @@ public class PaymentHistoryController {
                                                                          @RequestParam @Nullable LocalDate endDate) {
         return ResponseEntity.ok(paymentHistoryService.getCategoryStatistics(userId, startDate, endDate));
     }
+
     @GetMapping("/service-statistics")
     public ResponseEntity<PageResponse<Map<String, BigDecimal>>>
     getServiceStatus(@RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer page,
                      @RequestParam @Min(value = 0, message = "elements size can not be less than 0") Integer size,
+                     @RequestParam @Nullable Integer vendorId,
                      @RequestParam @Nullable LocalDate startDate,
                      @RequestParam @Nullable LocalDate endDate) {
-        return ResponseEntity.ok(paymentHistoryService.getServiceStatics(page, size, startDate, endDate));
+        return ResponseEntity.ok(paymentHistoryService.getServiceStatics(page, size, vendorId, startDate, endDate));
     }
 
     @GetMapping("/merchant-statistics")
     public ResponseEntity<Map<String, BigDecimal>> getMerchantStatistics(@RequestParam @Nullable LocalDate startDate,
                                                                          @RequestParam @Nullable LocalDate endDate) {
         return ResponseEntity.ok(paymentHistoryService.getMerchantStatistics(startDate, endDate));
+    }
+
+    @GetMapping("category-statistics-by-name")
+    public ResponseEntity<Map<LocalDate, BigDecimal>>
+    getCategoryStatisticsByCategoryName(@RequestParam @NotNull String categoryName,
+                                        @RequestParam @Nullable Integer vendorId,
+                                        @RequestParam @Nullable LocalDate startDate,
+                                        @RequestParam @Nullable LocalDate endDate) {
+        return ResponseEntity.ok(paymentHistoryService
+                .getCategoryStatisticsByCategoryName(categoryName, vendorId, startDate, endDate));
     }
 }
