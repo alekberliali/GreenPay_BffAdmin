@@ -38,10 +38,11 @@ public class PaymentHistoryController {
                            @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
                            @RequestParam @Nullable String transactionId,
                            @RequestParam @Nullable Integer vendorId,
+                           @RequestParam @Nullable Integer merchantId,
                            @RequestParam @Nullable List<Currency> currencies,
                            @RequestParam @Nullable List<TransferType> types,
                            @RequestParam @Nullable List<Status> statuses) {
-        return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(page, size, userId, vendorId, startDate, endDate,
+        return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(page, size, userId, vendorId, merchantId, startDate, endDate,
                 transactionId, currencies, types, statuses));
     }
 
@@ -53,13 +54,12 @@ public class PaymentHistoryController {
     }
 
     @GetMapping("/service-statistics")
-    public ResponseEntity<PageResponse<Map<String, BigDecimal>>>
-    getServiceStatus(@RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer page,
-                     @RequestParam @Min(value = 0, message = "elements size can not be less than 0") Integer size,
+    public ResponseEntity<Map<String, BigDecimal>>
+    getServiceStatus(@RequestParam @NotNull List<Integer> serviceIdList,
                      @RequestParam @Nullable Integer vendorId,
                      @RequestParam @Nullable LocalDate startDate,
                      @RequestParam @Nullable LocalDate endDate) {
-        return ResponseEntity.ok(paymentHistoryService.getServiceStatics(page, size, vendorId, startDate, endDate));
+        return ResponseEntity.ok(paymentHistoryService.getServiceStatics(serviceIdList, vendorId, startDate, endDate));
     }
 
     @GetMapping("/merchant-statistics")

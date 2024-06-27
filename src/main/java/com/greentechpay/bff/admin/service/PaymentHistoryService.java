@@ -50,12 +50,13 @@ public class PaymentHistoryService {
     }
 
     public PageResponse<List<PaymentHistoryDto>>
-    getAllWithPageByFilter(Integer page, Integer size, String userId, Integer vendorId, LocalDate startDate, LocalDate endDate,
+    getAllWithPageByFilter(Integer page, Integer size, String userId, Integer vendorId, Integer merchantId, LocalDate startDate, LocalDate endDate,
                            String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
                 .userId(userId)
                 .vendorId(vendorId)
+                .merchantId(merchantId)
                 .startDate(startDate)
                 .endDate(endDate)
                 .transactionId(transactionId)
@@ -102,6 +103,7 @@ public class PaymentHistoryService {
                 .build();
     }
 
+
     public Map<String, BigDecimal> getCategoryStatistics(String userId, LocalDate startDate, LocalDate endDate) {
         var statisticCriteria = StatisticCriteria.builder()
                 .userId(userId)
@@ -129,32 +131,24 @@ public class PaymentHistoryService {
         return response;
     }
 
-    public PageResponse<Map<String, BigDecimal>> getServiceStatics(Integer page, Integer size, Integer vendorId, LocalDate startDate, LocalDate endDate) {
+    public Map<String, BigDecimal> getServiceStatics(List<Integer> serviceIdList, Integer vendorId, LocalDate startDate, LocalDate endDate) {
         var statisticCriteria = StatisticCriteria.builder()
+                .serviceIdList(serviceIdList)
                 .vendorId(vendorId)
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
-        var pageRequestDto = new PageRequestDto(page, size);
-        var dto = RequestDto.<StatisticCriteria>builder()
-                .pageRequestDto(pageRequestDto)
-                .data(statisticCriteria)
-                .build();
-        var request = paymentHistoryClient.getServiceStatics(dto).getBody();
-        assert request != null;
-        Set<Integer> set = request.getContent().keySet();
+
+        var request = paymentHistoryClient.getServiceStatics(statisticCriteria).getBody();
+        Set<Integer> set = Objects.requireNonNull(request).keySet();
         Map<Integer, String> serviceMap = serviceClient.getNameById(new NameIdListDto(set.stream().toList(),
                 RequestType.Service)).getData().getNames();
         Map<String, BigDecimal> response = new HashMap<>();
         for (Integer id : set) {
             var serviceName = serviceMap.get(id);
-            response.put(serviceName, request.getContent().get(id));
+            response.put(serviceName, request.get(id));
         }
-        return PageResponse.<Map<String, BigDecimal>>builder()
-                .totalPages(request.getTotalPages())
-                .totalElements(request.getTotalElements())
-                .content(response)
-                .build();
+        return response;
     }
 
     public Map<LocalDate, BigDecimal> getCategoryStatisticsByCategoryName(String categoryName, Integer vendorId,
