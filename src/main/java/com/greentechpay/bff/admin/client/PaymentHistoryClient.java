@@ -27,7 +27,7 @@ public interface PaymentHistoryClient {
     ResponseEntity<Map<Integer, BigDecimal>> getServiceStatics(StatisticCriteria statisticCriteria);
 
     @PostMapping(value = "/payment-history/merchant-statistics")
-    ResponseEntity<Map<Integer, BigDecimal>> getMerchantStatistics(StatisticCriteria statisticCriteria);
+    ResponseEntity<Map<Long, BigDecimal>> getMerchantStatistics(StatisticCriteria statisticCriteria);
 
     @PostMapping(value = "/payment-history/category-statistics-by-name")
     ResponseEntity<Map<LocalDate, BigDecimal>> getCategoryStatisticsByName(StatisticCriteria statisticCriteria);

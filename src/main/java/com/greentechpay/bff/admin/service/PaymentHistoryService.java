@@ -4,6 +4,7 @@ import com.greentechpay.bff.admin.client.ServiceClient;
 import com.greentechpay.bff.admin.client.request.*;
 import com.greentechpay.bff.admin.client.PaymentHistoryClient;
 import com.greentechpay.bff.admin.dto.Currency;
+import com.greentechpay.bff.admin.client.request.RequestIdList;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
 import com.greentechpay.bff.admin.client.response.PaymentHistory;
@@ -24,33 +25,52 @@ public class PaymentHistoryService {
     private final PaymentHistoryClient paymentHistoryClient;
     private final ServiceClient serviceClient;
 
-    private Map<Integer, String> getNamesFromServiceProvider(List<PaymentHistory> paymentHistoryList, RequestType type) {
-        List<Integer> requestIdList = requestIdList(paymentHistoryList, type).stream().toList();
-        return serviceClient.getNameById(new NameIdListDto(requestIdList, type)).getData().getNames();
+    private Map<Long, String> getMerchantNames(String agentName, String agentPassword, String agentId,
+                                               String accessToken, List<PaymentHistory> paymentHistoryList) {
+
+        List<Long> requestIdList = new ArrayList<>();
+        for (var ph : paymentHistoryList) {
+            requestIdList.add(ph.getMerchantId());
+        }
+        var idList = RequestIdList.builder()
+                .merchantIds(requestIdList)
+                .build();
+        return serviceClient.getMerchantNamesById(agentName, agentPassword, agentId, accessToken, idList)
+                .getData().getMerchantsName();
     }
 
-    private Set<Integer> requestIdList(List<PaymentHistory> paymentHistoryList, RequestType type) {
-        Set<Integer> set = new HashSet<>();
-        if (type.equals(RequestType.Service)) {
-            for (var ph : paymentHistoryList) {
-                set.add(ph.getServiceId());
-            }
-            return set;
-        } else if (type.equals(RequestType.Vendor)) {
-            for (var ph : paymentHistoryList) {
-                set.add(ph.getVendorId());
-            }
-            return set;
-        } else {
-            for (var ph : paymentHistoryList) {
-                set.add(ph.getMerchantId());
-            }
-            return set;
+    private Map<Integer, String> getServiceNames(String agentName, String agentPassword, String agentId,
+                                                 String accessToken, List<PaymentHistory> paymentHistoryList) {
+        Set<Integer> requestIdSet = new HashSet<>();
+        for (var ph : paymentHistoryList) {
+            requestIdSet.add(ph.getServiceId());
         }
+        requestIdSet.remove(null);
+        if (requestIdSet.size() > 0) {
+            var idList = RequestIdList.builder()
+                    .serviceIds(requestIdSet.stream().toList())
+                    .build();
+            return serviceClient.getServiceNamesById(agentName, agentPassword, agentId, accessToken, idList)
+                    .getData().getServicesName();
+        } else return new HashMap<>();
+    }
+
+    private Map<Integer, String> getVendorNames(String agentName, String agentPassword, String agentId,
+                                                String accessToken, List<PaymentHistory> paymentHistoryList) {
+        List<Integer> requestIdList = new ArrayList<>();
+        for (var ph : paymentHistoryList) {
+            requestIdList.add(ph.getVendorId());
+        }
+        var idList = RequestIdList.builder()
+                .vendorIds(requestIdList)
+                .build();
+        return serviceClient.getVendorNamesById(agentName, agentPassword, agentId, accessToken, idList)
+                .getData().getVendorsName();
     }
 
     public PageResponse<List<PaymentHistoryDto>>
-    getAllWithPageByFilter(Integer page, Integer size, String userId, Integer vendorId, Integer merchantId, LocalDate startDate, LocalDate endDate,
+    getAllWithPageByFilter(String agentName, String agentPassword, String agentId, String accessToken, Integer page,
+                           Integer size, String userId, Integer vendorId, Long merchantId, LocalDate startDate, LocalDate endDate,
                            String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
@@ -70,9 +90,10 @@ public class PaymentHistoryService {
                 .data(filterDto)
                 .build();
         var request = Objects.requireNonNull(paymentHistoryClient.getAllWithPageByFilter(requestDto).getBody());
-        Map<Integer, String> serviceMap = getNamesFromServiceProvider(request.getContent(), RequestType.Service);
-        Map<Integer, String> vendorMap = getNamesFromServiceProvider(request.getContent(), RequestType.Vendor);
-        Map<Integer, String> merchantMap = getNamesFromServiceProvider(request.getContent(), RequestType.Merchant);
+        Map<Integer, String> serviceMap = getServiceNames(agentName, agentPassword, agentId, accessToken, request.getContent());
+        serviceMap.put(null, "");
+        Map<Integer, String> vendorMap = getVendorNames(agentName, agentPassword, agentId, accessToken, request.getContent());
+        Map<Long, String> merchantMap = getMerchantNames(agentName, agentPassword, agentId, accessToken, request.getContent());
         List<PaymentHistoryDto> response = new ArrayList<>();
         for (PaymentHistory ph : request.getContent()) {
             var dto = PaymentHistoryDto.builder()
@@ -113,25 +134,31 @@ public class PaymentHistoryService {
         return paymentHistoryClient.getCategoryStatistics(statisticCriteria).getBody();
     }
 
-    public Map<String, BigDecimal> getMerchantStatistics(LocalDate startDate, LocalDate endDate) {
+    public Map<String, BigDecimal> getMerchantStatistics(String agentName, String agentPassword, String agentId,
+                                                         String accessToken, LocalDate startDate, LocalDate endDate) {
         var statisticsCriteria = StatisticCriteria.builder()
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
         var request = paymentHistoryClient.getMerchantStatistics(statisticsCriteria).getBody();
         assert request != null;
-        Set<Integer> set = request.keySet();
-        Map<Integer, String> merchantMap = serviceClient.getNameById(new NameIdListDto(set.stream().toList(),
-                RequestType.Merchant)).getData().getNames();
+        Set<Long> set = request.keySet();
+        var idList = RequestIdList.builder()
+                .merchantIds(set.stream().toList())
+                .build();
+        Map<Long, String> merchantMap = serviceClient.getMerchantNamesById(agentName, agentPassword, agentId,
+                accessToken, idList).getData().getMerchantsName();
         Map<String, BigDecimal> response = new HashMap<>();
-        for (Integer id : set) {
+        for (Long id : set) {
             var merchantName = merchantMap.get(id);
             response.put(merchantName, request.get(id));
         }
         return response;
     }
 
-    public Map<String, BigDecimal> getServiceStatics(List<Integer> serviceIdList, Integer vendorId, LocalDate startDate, LocalDate endDate) {
+    public Map<String, BigDecimal> getServiceStatics(String agentName, String agentPassword, String agentId,
+                                                     String accessToken, List<Integer> serviceIdList, Integer vendorId,
+                                                     LocalDate startDate, LocalDate endDate) {
         var statisticCriteria = StatisticCriteria.builder()
                 .serviceIdList(serviceIdList)
                 .vendorId(vendorId)
@@ -141,8 +168,11 @@ public class PaymentHistoryService {
 
         var request = paymentHistoryClient.getServiceStatics(statisticCriteria).getBody();
         Set<Integer> set = Objects.requireNonNull(request).keySet();
-        Map<Integer, String> serviceMap = serviceClient.getNameById(new NameIdListDto(set.stream().toList(),
-                RequestType.Service)).getData().getNames();
+        var idList = RequestIdList.builder()
+                .serviceIds(set.stream().toList())
+                .build();
+        Map<Integer, String> serviceMap = serviceClient.getServiceNamesById(agentName, agentPassword, agentId,
+                accessToken, idList).getData().getServicesName();
         Map<String, BigDecimal> response = new HashMap<>();
         for (Integer id : set) {
             var serviceName = serviceMap.get(id);

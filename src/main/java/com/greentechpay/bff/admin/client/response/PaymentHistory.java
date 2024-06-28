@@ -18,7 +18,7 @@ public class PaymentHistory {
     private String externalPaymentId;
     private String requestField;
     private Integer serviceId;
-    private Integer merchantId;
+    private Long merchantId;
     private String senderRequestId;
     private String senderIban;
     private String receiverIban;

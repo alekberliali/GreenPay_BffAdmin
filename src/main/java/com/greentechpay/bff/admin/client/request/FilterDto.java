@@ -16,7 +16,7 @@ import java.util.List;
 public class FilterDto {
     private String userId;
     private Integer vendorId;
-    private Integer merchantId;
+    private Long merchantId;
     private LocalDate startDate;
     private LocalDate endDate;
     private String transactionId;
