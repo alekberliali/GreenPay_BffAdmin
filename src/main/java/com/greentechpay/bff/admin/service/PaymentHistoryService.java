@@ -57,15 +57,19 @@ public class PaymentHistoryService {
 
     private Map<Integer, String> getVendorNames(String agentName, String agentPassword, String agentId,
                                                 String accessToken, List<PaymentHistory> paymentHistoryList) {
-        List<Integer> requestIdList = new ArrayList<>();
+        Set<Integer> requestIdSet = new HashSet<>();
+
         for (var ph : paymentHistoryList) {
-            requestIdList.add(ph.getVendorId());
+            requestIdSet.add(ph.getVendorId());
         }
-        var idList = RequestIdList.builder()
-                .vendorIds(requestIdList)
-                .build();
-        return serviceClient.getVendorNamesById(agentName, agentPassword, agentId, accessToken, idList)
-                .getData().getVendorsName();
+        requestIdSet.remove(null);
+        if (requestIdSet.size() > 0) {
+            var idList = RequestIdList.builder()
+                    .vendorIds(requestIdSet.stream().toList())
+                    .build();
+            return serviceClient.getVendorNamesById(agentName, agentPassword, agentId, accessToken, idList)
+                    .getData().getVendorsName();
+        } else return new HashMap<>();
     }
 
     public PageResponse<List<PaymentHistoryDto>>
@@ -93,6 +97,7 @@ public class PaymentHistoryService {
         Map<Integer, String> serviceMap = getServiceNames(agentName, agentPassword, agentId, accessToken, request.getContent());
         serviceMap.put(null, "");
         Map<Integer, String> vendorMap = getVendorNames(agentName, agentPassword, agentId, accessToken, request.getContent());
+        vendorMap.put(null, "");
         Map<Long, String> merchantMap = getMerchantNames(agentName, agentPassword, agentId, accessToken, request.getContent());
         List<PaymentHistoryDto> response = new ArrayList<>();
         for (PaymentHistory ph : request.getContent()) {
