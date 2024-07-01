@@ -3,13 +3,15 @@ package com.greentechpay.bff.admin.client;
 import com.greentechpay.bff.admin.client.request.FilterDto;
 import com.greentechpay.bff.admin.client.request.RequestDto;
 import com.greentechpay.bff.admin.client.request.StatisticCriteria;
-import com.greentechpay.bff.admin.dto.request.PaymentHistory;
+import com.greentechpay.bff.admin.client.response.PaymentHistory;
 import com.greentechpay.bff.admin.dto.response.PageResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -22,5 +24,11 @@ public interface PaymentHistoryClient {
     ResponseEntity<Map<String, BigDecimal>> getCategoryStatistics(StatisticCriteria statisticCriteria);
 
     @PostMapping(value = "/payment-history/service-statistics")
-    ResponseEntity<PageResponse<Map<Integer, BigDecimal>>> getServiceStatics(RequestDto<StatisticCriteria> requestDto);
+    ResponseEntity<Map<Integer, BigDecimal>> getServiceStatics(StatisticCriteria statisticCriteria);
+
+    @PostMapping(value = "/payment-history/merchant-statistics")
+    ResponseEntity<Map<Long, BigDecimal>> getMerchantStatistics(StatisticCriteria statisticCriteria);
+
+    @PostMapping(value = "/payment-history/category-statistics-by-name")
+    ResponseEntity<Map<LocalDate, BigDecimal>> getCategoryStatisticsByName(StatisticCriteria statisticCriteria);
 }
