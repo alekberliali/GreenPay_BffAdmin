@@ -105,6 +105,7 @@ public class PaymentHistoryService {
                     .receiverIban(ph.getReceiverIban())
                     .requestField(ph.getRequestField())
                     .senderRequestId(ph.getSenderRequestId())
+                    .externalPaymentId(ph.getExternalPaymentId())
                     .vendorName(vendorMap.get(ph.getVendorId()))
                     .serviceName(serviceMap.get(ph.getServiceId()))
                     .merchantName(merchantMap.get(ph.getMerchantId()))
