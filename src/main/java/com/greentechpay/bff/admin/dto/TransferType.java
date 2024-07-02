@@ -1,7 +1,8 @@
 package com.greentechpay.bff.admin.dto;
 
 public enum TransferType {
-    BalanceToBalance,
+    IbanToPhoneNumber,
+    IbanToIban,
     BalanceToCard,
     CardToBalance,
     BillingPayment,
