@@ -18,7 +18,7 @@ import java.util.Map;
 @FeignClient(value = "paymentHistory", url = "${app.feign.payment-history.config.url}")
 public interface PaymentHistoryClient {
     @PostMapping(value = "/payment-history/filter")
-    ResponseEntity<PageResponse<List<PaymentHistory>>> getAllWithPageByFilter(RequestDto<FilterDto> requestDto);
+    ResponseEntity<PageResponse<List<PaymentHistory>>> getAllWithPageByFilter(@RequestBody RequestDto<FilterDto> requestDto);
 
     @PostMapping(value = "/payment-history/category-statistics")
     ResponseEntity<Map<String, BigDecimal>> getCategoryStatistics(StatisticCriteria statisticCriteria);
