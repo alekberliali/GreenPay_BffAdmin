@@ -1,9 +1,10 @@
 package com.greentechpay.bff.admin.dto;
 
-
 public enum Status {
     Created,
+    Fail,
     Success,
+    Pending,
     TransactinCreated,
     SendingToVendor,
     CreatedAtVendor,
@@ -31,3 +32,4 @@ public enum Status {
     DatabaseWriteError,
     InvalidStatus
 }
+

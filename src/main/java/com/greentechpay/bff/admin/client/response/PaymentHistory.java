@@ -15,8 +15,8 @@ public class PaymentHistory {
     private String userId;
     private Integer vendorId;
     private String toUser;
-    private String externalPaymentId;
     private String requestField;
+    private String externalPaymentId;
     private Integer serviceId;
     private Long merchantId;
     private String senderRequestId;
@@ -24,7 +24,8 @@ public class PaymentHistory {
     private String receiverIban;
     private TransferType transferType;
     private LocalDateTime paymentDate;
-    private Currency currency;
     private String transactionId;
+    private String categoryName;
+    private Currency currency;
     private Status status;
 }
