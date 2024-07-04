@@ -4,6 +4,7 @@ import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
 import com.greentechpay.bff.admin.dto.response.PageResponse;
+import com.greentechpay.bff.admin.dto.response.PaymentHistoryDto;
 import com.greentechpay.bff.admin.service.PaymentHistoryService;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.Min;
@@ -29,7 +30,7 @@ public class PaymentHistoryController {
     private final PaymentHistoryService paymentHistoryService;
 
     @GetMapping("/get-payment-history-filter")
-    public ResponseEntity<PageResponse>
+    public ResponseEntity<PageResponse<List<PaymentHistoryDto>>>
     getAllWithPageByFilter(@RequestHeader(value = "agent-name") String agentName,
                            @RequestHeader(value = "agent-password") String agentPassword,
                            @RequestHeader(value = "agent-id") String agentId,
@@ -50,7 +51,7 @@ public class PaymentHistoryController {
                 types, statuses));
 
     }
-
+    //TODO add currency or iban
     @GetMapping("/category-statistics")
     public ResponseEntity<Map<String, BigDecimal>> getCategoryStatistics(@RequestParam @Nullable String userId,
                                                                          @RequestParam @Nullable LocalDate startDate,
