@@ -76,6 +76,9 @@ public class PaymentHistoryService {
     getAllWithPageByFilter(String agentName, String agentPassword, String agentId, String accessToken, Integer page,
                            Integer size, String userId, Integer vendorId, Long merchantId, LocalDate startDate, LocalDate endDate,
                            String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
+        if (merchantId != null && !Objects.equals(merchantId, Long.valueOf(agentId))) {
+            throw new RuntimeException("merchant id is not acceptable for this user");
+        }
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
                 .userId(userId)

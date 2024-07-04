@@ -29,7 +29,7 @@ public class PaymentHistoryController {
 
     private final PaymentHistoryService paymentHistoryService;
 
-    @GetMapping("/get-payment-history-filter")
+    @GetMapping("/filter")
     public ResponseEntity<PageResponse<List<PaymentHistoryDto>>>
     getAllWithPageByFilter(@RequestHeader(value = "agent-name") String agentName,
                            @RequestHeader(value = "agent-password") String agentPassword,
@@ -49,7 +49,27 @@ public class PaymentHistoryController {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
                 accessToken, page, size, userId, vendorId, merchantId, startDate, endDate, transactionId, currencies,
                 types, statuses));
+    }
 
+    @GetMapping("/filter-merchant")
+    public ResponseEntity<PageResponse<List<PaymentHistoryDto>>>
+    getAllWithFilterByMerchantId(@RequestHeader(value = "agent-name") String agentName,
+                           @RequestHeader(value = "agent-password") String agentPassword,
+                           @RequestHeader(value = "agent-id") String agentId,
+                           @RequestHeader(value = "access-token") String accessToken,
+                           @RequestParam @Min(value = 0, message = "pages size can not be less than 0") Integer page,
+                           @RequestParam @Min(value = 0, message = "elements size can not be less than 0") Integer size,
+                           @RequestParam @Nullable String userId,
+                           @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate startDate,
+                           @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
+                           @RequestParam @Nullable String transactionId,
+                           @RequestParam @Nullable Integer vendorId,
+                           @RequestParam @Nullable List<Currency> currencies,
+                           @RequestParam @Nullable List<TransferType> types,
+                           @RequestParam @Nullable List<Status> statuses) {
+        return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
+                accessToken, page, size, userId, vendorId, Long.valueOf(agentId), startDate, endDate, transactionId, currencies,
+                types, statuses));
     }
     //TODO add currency or iban
     @GetMapping("/category-statistics")
