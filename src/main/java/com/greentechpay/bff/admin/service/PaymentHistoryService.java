@@ -132,20 +132,24 @@ public class PaymentHistoryService {
     }
 
 
-    public Map<String, BigDecimal> getCategoryStatistics(String userId, LocalDate startDate, LocalDate endDate) {
+    public Map<String, BigDecimal> getCategoryStatistics(String userId, LocalDate startDate, LocalDate endDate,
+                                                         Currency currency) {
         var statisticCriteria = StatisticCriteria.builder()
                 .userId(userId)
                 .startDate(startDate)
                 .endDate(endDate)
+                .currency(currency)
                 .build();
         return paymentHistoryClient.getCategoryStatistics(statisticCriteria).getBody();
     }
 
     public Map<String, BigDecimal> getMerchantStatistics(String agentName, String agentPassword, String agentId,
-                                                         String accessToken, LocalDate startDate, LocalDate endDate) {
+                                                         String accessToken, LocalDate startDate, LocalDate endDate,
+                                                         Currency currency) {
         var statisticsCriteria = StatisticCriteria.builder()
                 .startDate(startDate)
                 .endDate(endDate)
+                .currency(currency)
                 .build();
         var request = paymentHistoryClient.getMerchantStatistics(statisticsCriteria).getBody();
         assert request != null;
@@ -165,12 +169,13 @@ public class PaymentHistoryService {
 
     public Map<String, BigDecimal> getServiceStatics(String agentName, String agentPassword, String agentId,
                                                      String accessToken, List<Integer> serviceIdList, Integer vendorId,
-                                                     LocalDate startDate, LocalDate endDate) {
+                                                     LocalDate startDate, LocalDate endDate, Currency currency) {
         var statisticCriteria = StatisticCriteria.builder()
                 .serviceIdList(serviceIdList)
                 .vendorId(vendorId)
                 .startDate(startDate)
                 .endDate(endDate)
+                .currency(currency)
                 .build();
 
         var request = paymentHistoryClient.getServiceStatics(statisticCriteria).getBody();
@@ -189,12 +194,14 @@ public class PaymentHistoryService {
     }
 
     public Map<LocalDate, BigDecimal> getCategoryStatisticsByCategoryName(String categoryName, Integer vendorId,
-                                                                          LocalDate startDate, LocalDate endDate) {
+                                                                          LocalDate startDate, LocalDate endDate,
+                                                                          Currency currency) {
         var statisticsCriteria = StatisticCriteria.builder()
                 .categoryName(categoryName)
                 .vendorId(vendorId)
                 .startDate(startDate)
                 .endDate(endDate)
+                .currency(currency)
                 .build();
         return paymentHistoryClient.getCategoryStatisticsByName(statisticsCriteria).getBody();
     }

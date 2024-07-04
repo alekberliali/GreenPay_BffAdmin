@@ -1,5 +1,6 @@
 package com.greentechpay.bff.admin.client.request;
 
+import com.greentechpay.bff.admin.dto.Currency;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,4 +16,5 @@ public class StatisticCriteria {
     String categoryName;
     LocalDate startDate;
     LocalDate endDate;
+    Currency currency;
 }
