@@ -21,6 +21,6 @@ public class FilterDto {
     private LocalDate endDate;
     private String transactionId;
     private List<Currency> currencies;
-    private List<TransferType> types;
+    private List<TransferType> transferTypes;
     private List<Status> statuses;
 }
