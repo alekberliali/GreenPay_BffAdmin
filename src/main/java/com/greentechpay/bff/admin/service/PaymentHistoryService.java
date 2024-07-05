@@ -86,7 +86,7 @@ public class PaymentHistoryService {
                 .endDate(endDate)
                 .transactionId(transactionId)
                 .currencies(currencies)
-                .types(types)
+                .transferTypes(types)
                 .statuses(statuses)
                 .build();
 
