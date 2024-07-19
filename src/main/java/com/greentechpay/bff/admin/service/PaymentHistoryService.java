@@ -46,7 +46,7 @@ public class PaymentHistoryService {
             requestIdSet.add(ph.getServiceId());
         }
         requestIdSet.remove(null);
-        if (requestIdSet.size() > 0) {
+        if (!requestIdSet.isEmpty()) {
             var idList = RequestIdList.builder()
                     .serviceIds(requestIdSet.stream().toList())
                     .build();
@@ -63,7 +63,7 @@ public class PaymentHistoryService {
             requestIdSet.add(ph.getVendorId());
         }
         requestIdSet.remove(null);
-        if (requestIdSet.size() > 0) {
+        if (!requestIdSet.isEmpty()) {
             var idList = RequestIdList.builder()
                     .vendorIds(requestIdSet.stream().toList())
                     .build();
@@ -74,8 +74,9 @@ public class PaymentHistoryService {
 
     public PageResponse<List<PaymentHistoryDto>>
     getAllWithPageByFilter(String agentName, String agentPassword, String agentId, String accessToken, Integer page,
-                           Integer size, String userId, Integer vendorId, Long merchantId, LocalDate startDate, LocalDate endDate,
-                           String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
+                           Integer size, String userId, Integer vendorId, Long merchantId, List<Integer> serviceIdList,
+                           LocalDate startDate, LocalDate endDate, String transactionId, List<Currency> currencies,
+                           List<TransferType> types, List<Status> statuses) {
 
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
@@ -85,6 +86,7 @@ public class PaymentHistoryService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .transactionId(transactionId)
+                .serviceIdList(serviceIdList)
                 .currencies(currencies)
                 .transferTypes(types)
                 .statuses(statuses)
@@ -130,7 +132,6 @@ public class PaymentHistoryService {
                 .content(response)
                 .build();
     }
-
 
     public Map<String, BigDecimal> getCategoryStatistics(String userId, LocalDate startDate, LocalDate endDate,
                                                          Currency currency) {
