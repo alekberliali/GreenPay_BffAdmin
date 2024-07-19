@@ -43,11 +43,12 @@ public class PaymentHistoryController {
                            @RequestParam @Nullable String transactionId,
                            @RequestParam @Nullable Integer vendorId,
                            @RequestParam @Nullable Long merchantId,
+                           @RequestParam @Nullable List<Integer> serviceIdList,
                            @RequestParam @Nullable List<Currency> currencies,
                            @RequestParam @Nullable List<TransferType> types,
                            @RequestParam @Nullable List<Status> statuses) {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
-                accessToken, page, size, userId, vendorId, merchantId, startDate, endDate, transactionId, currencies,
+                accessToken, page, size, userId, vendorId, merchantId, serviceIdList, startDate, endDate, transactionId, currencies,
                 types, statuses));
     }
 
@@ -64,11 +65,12 @@ public class PaymentHistoryController {
                                  @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
                                  @RequestParam @Nullable String transactionId,
                                  @RequestParam @Nullable Integer vendorId,
+                                 @RequestParam @Nullable List<Integer> serviceIdList,
                                  @RequestParam @Nullable List<Currency> currencies,
                                  @RequestParam @Nullable List<TransferType> types,
                                  @RequestParam @Nullable List<Status> statuses) {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
-                accessToken, page, size, userId, vendorId, Long.valueOf(agentId), startDate, endDate, transactionId, currencies,
+                accessToken, page, size, userId, vendorId,  Long.valueOf(agentId), serviceIdList, startDate, endDate, transactionId, currencies,
                 types, statuses));
     }
 

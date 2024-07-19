@@ -20,6 +20,7 @@ public class FilterDto {
     private LocalDate startDate;
     private LocalDate endDate;
     private String transactionId;
+    private List<Integer> serviceIdList;
     private List<Currency> currencies;
     private List<TransferType> transferTypes;
     private List<Status> statuses;
