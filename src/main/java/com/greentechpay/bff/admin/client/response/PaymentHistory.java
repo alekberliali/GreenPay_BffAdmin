@@ -23,6 +23,7 @@ public class PaymentHistory {
     private String senderIban;
     private String receiverIban;
     private TransferType transferType;
+    private LocalDateTime updateDate;
     private LocalDateTime paymentDate;
     private String transactionId;
     private String categoryName;
