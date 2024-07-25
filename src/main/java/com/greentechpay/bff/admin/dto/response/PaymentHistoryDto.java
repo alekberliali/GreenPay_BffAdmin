@@ -1,5 +1,6 @@
 package com.greentechpay.bff.admin.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.greentechpay.bff.admin.dto.Currency;
 import com.greentechpay.bff.admin.dto.Status;
 import com.greentechpay.bff.admin.dto.TransferType;
@@ -11,21 +12,24 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentHistoryDto {
+    private Long id;
     private BigDecimal amount;
-    private String userId;
-    private String vendorName;
-    private String toUser;
-    private String requestField;
+    private LocalDateTime paymentDate;
+    private LocalDateTime updateDate;
+    private String senderRequestId;
+    private String transactionId;
     private String externalPaymentId;
     private String serviceName;
-    private String merchantName;
-    private String senderRequestId;
+    private String categoryName;
+    private String senderPhoneNumber;
+    private String requestField;
     private String senderIban;
     private String receiverIban;
-    private TransferType transferType;
-    private LocalDateTime paymentDate;
+    private String merchantName;
+    private String vendorName;
     private Currency currency;
-    private String transactionId;
+    private TransferType transferType;
     private Status status;
 }

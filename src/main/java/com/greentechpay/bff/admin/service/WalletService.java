@@ -11,18 +11,10 @@ import org.springframework.stereotype.Service;
 public class WalletService {
     private final WalletClient walletClient;
 
-    public Boolean updateWalletStatus(String id) {
-        var dto = walletClient.updateWalletStatus(id);
-        return dto.getData().getStatus();
-    }
+    protected String getPhoneNumberByIban(String agentName, String agentPassword, String agentId,
+                                          String accessToken, String authorizationToken, String iban) {
 
-    //TODO write circuit breaker
-    public HttpStatus updateLimitBalance(WalletLimitDto walletLimitDto) {
-        var dto = walletClient.updateWalletBalance(walletLimitDto);
-        if (dto.getData() != null) {
-            return HttpStatus.OK;
-        } else {
-            return HttpStatus.BAD_REQUEST;
-        }
+        return walletClient.getPhoneNumberByIban(agentName, agentPassword, agentId, accessToken,
+                authorizationToken, iban).getData().getPhoneNumber();
     }
 }

@@ -24,6 +24,7 @@ public class PaymentHistoryService {
 
     private final PaymentHistoryClient paymentHistoryClient;
     private final ServiceClient serviceClient;
+    private final WalletService walletService;
 
     private Map<Long, String> getMerchantNames(String agentName, String agentPassword, String agentId,
                                                String accessToken, List<PaymentHistory> paymentHistoryList) {
@@ -73,10 +74,10 @@ public class PaymentHistoryService {
     }
 
     public PageResponse<List<PaymentHistoryDto>>
-    getAllWithPageByFilter(String agentName, String agentPassword, String agentId, String accessToken, Integer page,
-                           Integer size, String userId, Integer vendorId, Long merchantId, List<Integer> serviceIdList,
-                           LocalDate startDate, LocalDate endDate, String transactionId, List<Currency> currencies,
-                           List<TransferType> types, List<Status> statuses) {
+    getAllWithPageByFilter(String agentName, String agentPassword, String agentId, String accessToken, String authorization,
+                           Integer page, Integer size, String userId, Integer vendorId, Long merchantId, String categoryName,
+                           List<Integer> serviceIdList, LocalDate startDate, LocalDate endDate, String transactionId,
+                           List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
 
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
@@ -87,6 +88,7 @@ public class PaymentHistoryService {
                 .endDate(endDate)
                 .transactionId(transactionId)
                 .serviceIdList(serviceIdList)
+                .categoryName(categoryName)
                 .currencies(currencies)
                 .transferTypes(types)
                 .statuses(statuses)
@@ -96,7 +98,7 @@ public class PaymentHistoryService {
                 .pageRequestDto(pageRequestDto)
                 .data(filterDto)
                 .build();
-        var request = Objects.requireNonNull(paymentHistoryClient.getAllWithPageByFilter(requestDto).getBody());
+        var request = Objects.requireNonNull(paymentHistoryClient.getAllWithPageByFilter(requestDto));
         Map<Integer, String> serviceMap = getServiceNames(agentName, agentPassword, agentId, accessToken, request.getContent());
         serviceMap.put(null, "");
         Map<Integer, String> vendorMap = getVendorNames(agentName, agentPassword, agentId, accessToken, request.getContent());
@@ -104,23 +106,23 @@ public class PaymentHistoryService {
         Map<Long, String> merchantMap = getMerchantNames(agentName, agentPassword, agentId, accessToken, request.getContent());
         List<PaymentHistoryDto> response = new ArrayList<>();
         for (PaymentHistory ph : request.getContent()) {
+            String phoneNumber;
+            if (ph.getSenderIban() != null) {
+                phoneNumber = walletService.getPhoneNumberByIban(agentName, agentPassword, agentId, accessToken,
+                        authorization, ph.getSenderIban());
+            } else phoneNumber = null;
+
             var dto = PaymentHistoryDto.builder()
                     .amount(ph.getAmount())
-                    .userId(ph.getUserId())
-                    .amount(ph.getAmount())
-                    .toUser(ph.getToUser())
-                    .senderIban(ph.getSenderIban())
-                    .receiverIban(ph.getReceiverIban())
                     .requestField(ph.getRequestField())
-                    .senderRequestId(ph.getSenderRequestId())
-                    .externalPaymentId(ph.getExternalPaymentId())
                     .vendorName(vendorMap.get(ph.getVendorId()))
                     .serviceName(serviceMap.get(ph.getServiceId()))
                     .merchantName(merchantMap.get(ph.getMerchantId()))
+                    .senderPhoneNumber(phoneNumber)
                     .transactionId(ph.getTransactionId())
                     .transferType(ph.getTransferType())
+                    .updateDate(ph.getUpdateDate())
                     .paymentDate(ph.getPaymentDate())
-                    .currency(ph.getCurrency())
                     .status(ph.getStatus())
                     .build();
             response.add(dto);
@@ -130,6 +132,40 @@ public class PaymentHistoryService {
                 .totalPages(request.getTotalPages())
                 .totalElements(request.getTotalElements())
                 .content(response)
+                .build();
+    }
+
+    public PaymentHistoryDto getPaymentHistoryById(String agentName, String agentPassword, String agentId,
+                                                   String accessToken, String authorization, Long id, Long merchantId) {
+        var request = paymentHistoryClient.getById(id, merchantId);
+        Map<Integer, String> serviceMap = getServiceNames(agentName, agentPassword, agentId, accessToken, List.of(request));
+        serviceMap.put(null, "");
+        Map<Integer, String> vendorMap = getVendorNames(agentName, agentPassword, agentId, accessToken, List.of(request));
+        vendorMap.put(null, "");
+        Map<Long, String> merchantMap = getMerchantNames(agentName, agentPassword, agentId, accessToken, List.of(request));
+        String phoneNumber;
+        if (request.getSenderIban() != null) {
+            phoneNumber = walletService.getPhoneNumberByIban(agentName, agentPassword, agentId, accessToken,
+                    authorization, request.getSenderIban());
+        } else phoneNumber = null;
+        return PaymentHistoryDto.builder()
+                .amount(request.getAmount())
+                .paymentDate(request.getPaymentDate())
+                .updateDate(request.getUpdateDate())
+                .senderRequestId(request.getSenderRequestId())
+                .transactionId(request.getTransactionId())
+                .externalPaymentId(request.getExternalPaymentId())
+                .serviceName(serviceMap.get(request.getServiceId()))
+                .categoryName(request.getCategoryName())
+                .senderPhoneNumber(phoneNumber)
+                .requestField(request.getRequestField())
+                .senderIban(request.getSenderIban())
+                .receiverIban(request.getReceiverIban())
+                .merchantName(merchantMap.get(request.getMerchantId()))
+                .vendorName(vendorMap.get(request.getVendorId()))
+                .currency(request.getCurrency())
+                .transferType(request.getTransferType())
+                .status(request.getStatus())
                 .build();
     }
 
