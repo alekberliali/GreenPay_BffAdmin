@@ -15,6 +15,7 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FilterDto {
     private String userId;
+    private String receiptId;
     private Integer vendorId;
     private Long merchantId;
     private LocalDate startDate;

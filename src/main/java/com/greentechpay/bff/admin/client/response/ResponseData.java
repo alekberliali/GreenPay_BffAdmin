@@ -9,5 +9,5 @@ public class ResponseData {
     private Map<Integer, String> vendorsName;
     private Map<Integer, String> servicesName;
     private Map<Long, String> merchantsName;
-    private String phoneNumber;
+    private Map<String,String> ibanPhonePairs;
 }

@@ -26,6 +26,20 @@ public class PaymentHistoryService {
     private final ServiceClient serviceClient;
     private final WalletService walletService;
 
+    private Map<String, String> getPhoneNumbersByIbanList(String agentName, String agentPassword, String agentId,
+                                                          String accessToken, String authorization,
+                                                          List<PaymentHistory> paymentHistoryList) {
+        Set<String> ibanSet = new HashSet<>();
+        for (var ph : paymentHistoryList) {
+            ibanSet.add(ph.getSenderIban());
+            ibanSet.add(ph.getReceiverIban());
+        }
+        var request = Wallet.builder()
+                .iban(ibanSet.stream().toList())
+                .build();
+        return walletService.getPhoneNumberByIban(agentName, agentPassword, agentId, accessToken, authorization, request);
+    }
+
     private Map<Long, String> getMerchantNames(String agentName, String agentPassword, String agentId,
                                                String accessToken, List<PaymentHistory> paymentHistoryList) {
 
@@ -76,12 +90,13 @@ public class PaymentHistoryService {
     public PageResponse<List<PaymentHistoryDto>>
     getAllWithPageByFilter(String agentName, String agentPassword, String agentId, String accessToken, String authorization,
                            Integer page, Integer size, String userId, Integer vendorId, Long merchantId, String categoryName,
-                           List<Integer> serviceIdList, LocalDate startDate, LocalDate endDate, String transactionId,
-                           List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
+                           List<Integer> serviceIdList, LocalDate startDate, LocalDate endDate, String receiptId,
+                           String transactionId, List<Currency> currencies, List<TransferType> types, List<Status> statuses) {
 
         PageRequestDto pageRequestDto = new PageRequestDto(page, size);
         FilterDto filterDto = FilterDto.builder()
                 .userId(userId)
+                .receiptId(receiptId)
                 .vendorId(vendorId)
                 .merchantId(merchantId)
                 .startDate(startDate)
@@ -104,22 +119,23 @@ public class PaymentHistoryService {
         Map<Integer, String> vendorMap = getVendorNames(agentName, agentPassword, agentId, accessToken, request.getContent());
         vendorMap.put(null, "");
         Map<Long, String> merchantMap = getMerchantNames(agentName, agentPassword, agentId, accessToken, request.getContent());
+        Map<String, String> ibanMap = getPhoneNumbersByIbanList(agentName, agentPassword, agentId, accessToken,
+                authorization, request.getContent());
         List<PaymentHistoryDto> response = new ArrayList<>();
         for (PaymentHistory ph : request.getContent()) {
             String phoneNumber;
             if (ph.getSenderIban() != null) {
-                phoneNumber = walletService.getPhoneNumberByIban(agentName, agentPassword, agentId, accessToken,
-                        authorization, ph.getSenderIban());
+                phoneNumber = ibanMap.get(ph.getSenderIban());
             } else phoneNumber = null;
 
             var dto = PaymentHistoryDto.builder()
+                    .id(ph.getId())
                     .amount(ph.getAmount())
-                    .requestField(ph.getRequestField())
                     .vendorName(vendorMap.get(ph.getVendorId()))
                     .serviceName(serviceMap.get(ph.getServiceId()))
                     .merchantName(merchantMap.get(ph.getMerchantId()))
                     .senderPhoneNumber(phoneNumber)
-                    .transactionId(ph.getTransactionId())
+                    .requestField(ph.getRequestField())
                     .transferType(ph.getTransferType())
                     .updateDate(ph.getUpdateDate())
                     .paymentDate(ph.getPaymentDate())
@@ -143,12 +159,14 @@ public class PaymentHistoryService {
         Map<Integer, String> vendorMap = getVendorNames(agentName, agentPassword, agentId, accessToken, List.of(request));
         vendorMap.put(null, "");
         Map<Long, String> merchantMap = getMerchantNames(agentName, agentPassword, agentId, accessToken, List.of(request));
+        Map<String, String> ibanMap = getPhoneNumbersByIbanList(agentName, agentPassword, agentId, accessToken,
+                authorization, List.of(request));
         String phoneNumber;
         if (request.getSenderIban() != null) {
-            phoneNumber = walletService.getPhoneNumberByIban(agentName, agentPassword, agentId, accessToken,
-                    authorization, request.getSenderIban());
+            phoneNumber = ibanMap.get(request.getSenderIban());
         } else phoneNumber = null;
         return PaymentHistoryDto.builder()
+                .receiptId(request.getTransactionId().substring(0, 8))
                 .amount(request.getAmount())
                 .paymentDate(request.getPaymentDate())
                 .updateDate(request.getUpdateDate())

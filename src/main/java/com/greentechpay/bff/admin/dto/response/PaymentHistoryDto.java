@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentHistoryDto {
     private Long id;
+    private String receiptId;
     private BigDecimal amount;
     private LocalDateTime paymentDate;
     private LocalDateTime updateDate;
