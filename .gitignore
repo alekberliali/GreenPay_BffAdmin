@@ -35,4 +35,6 @@ out/
 
 # Application properties
 application.properties
+application-prod.properties
+
 
