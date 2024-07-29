@@ -41,6 +41,7 @@ public class PaymentHistoryController {
                            @RequestParam @Nullable String userId,
                            @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate startDate,
                            @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
+                           @RequestParam @Nullable String receiptId,
                            @RequestParam @Nullable String transactionId,
                            @RequestParam @Nullable Integer vendorId,
                            @RequestParam @Nullable Long merchantId,
@@ -51,7 +52,7 @@ public class PaymentHistoryController {
                            @RequestParam @Nullable List<Status> statuses) {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
                 accessToken, authorization, page, size, userId, vendorId, merchantId, categoryName, serviceIdList,
-                startDate, endDate, transactionId, currencies, types, statuses));
+                startDate, endDate, transactionId, receiptId, currencies, types, statuses));
     }
 
     @GetMapping("/filter-merchant")
@@ -66,6 +67,7 @@ public class PaymentHistoryController {
                                  @RequestParam @Nullable String userId,
                                  @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate startDate,
                                  @RequestParam @Nullable @Past(message = "startDate must be a past date") LocalDate endDate,
+                                 @RequestParam @Nullable String receiptId,
                                  @RequestParam @Nullable String transactionId,
                                  @RequestParam @Nullable Integer vendorId,
                                  @RequestParam @Nullable String categoryName,
@@ -75,7 +77,7 @@ public class PaymentHistoryController {
                                  @RequestParam @Nullable List<Status> statuses) {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
                 accessToken, authorization, page, size, userId, vendorId, Long.valueOf(agentId), categoryName,
-                serviceIdList, startDate, endDate, transactionId, currencies, types, statuses));
+                serviceIdList, startDate, endDate, receiptId, transactionId, currencies, types, statuses));
     }
 
     @GetMapping("/{id}")
