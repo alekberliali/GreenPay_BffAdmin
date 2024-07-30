@@ -52,7 +52,7 @@ public class PaymentHistoryController {
                            @RequestParam @Nullable List<Status> statuses) {
         return ResponseEntity.ok(paymentHistoryService.getAllWithPageByFilter(agentName, agentPassword, agentId,
                 accessToken, authorization, page, size, userId, vendorId, merchantId, categoryName, serviceIdList,
-                startDate, endDate, transactionId, receiptId, currencies, types, statuses));
+                startDate, endDate, receiptId, transactionId, currencies, types, statuses));
     }
 
     @GetMapping("/filter-merchant")
