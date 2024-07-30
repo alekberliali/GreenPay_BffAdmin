@@ -25,6 +25,7 @@ public class PaymentHistoryDto {
     private String serviceName;
     private String categoryName;
     private String senderPhoneNumber;
+    private String receiverPhoneNumber;
     private String requestField;
     private String senderIban;
     private String receiverIban;

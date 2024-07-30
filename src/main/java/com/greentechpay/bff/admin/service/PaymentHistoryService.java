@@ -123,10 +123,15 @@ public class PaymentHistoryService {
                 authorization, request.getContent());
         List<PaymentHistoryDto> response = new ArrayList<>();
         for (PaymentHistory ph : request.getContent()) {
-            String phoneNumber;
+            String senderPhoneNumber = null;
+            String receiverPhoneNumber = null;
+
             if (ph.getSenderIban() != null) {
-                phoneNumber = ibanMap.get(ph.getSenderIban());
-            } else phoneNumber = null;
+                senderPhoneNumber = ibanMap.get(ph.getSenderIban());
+            }
+            if (ph.getReceiverIban() != null) {
+                receiverPhoneNumber = ibanMap.get(ph.getReceiverIban());
+            }
 
             var dto = PaymentHistoryDto.builder()
                     .id(ph.getId())
@@ -134,7 +139,8 @@ public class PaymentHistoryService {
                     .vendorName(vendorMap.get(ph.getVendorId()))
                     .serviceName(serviceMap.get(ph.getServiceId()))
                     .merchantName(merchantMap.get(ph.getMerchantId()))
-                    .senderPhoneNumber(phoneNumber)
+                    .senderPhoneNumber(senderPhoneNumber)
+                    .receiverPhoneNumber(receiverPhoneNumber)
                     .requestField(ph.getRequestField())
                     .transferType(ph.getTransferType())
                     .updateDate(ph.getUpdateDate())
