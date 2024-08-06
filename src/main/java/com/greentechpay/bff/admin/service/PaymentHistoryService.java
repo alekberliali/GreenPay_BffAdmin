@@ -193,10 +193,11 @@ public class PaymentHistoryService {
                 .build();
     }
 
-    public Map<String, BigDecimal> getCategoryStatistics(String userId, LocalDate startDate, LocalDate endDate,
-                                                         Currency currency) {
+    public Map<String, BigDecimal> getCategoryStatistics(Long merchantId, String userId, LocalDate startDate,
+                                                         LocalDate endDate, Currency currency) {
         var statisticCriteria = StatisticCriteria.builder()
                 .userId(userId)
+                .merchantId(merchantId)
                 .startDate(startDate)
                 .endDate(endDate)
                 .currency(currency)

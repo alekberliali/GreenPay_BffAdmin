@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 public class StatisticCriteria {
     List<Integer> serviceIdList;
+    Long merchantId;
     String userId;
     Integer vendorId;
     String categoryName;

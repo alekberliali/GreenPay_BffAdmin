@@ -102,13 +102,24 @@ public class PaymentHistoryController {
                 accessToken, authorization, id, Long.valueOf(agentId)));
     }
 
-    //TODO add currency or iban
     @GetMapping("/category-statistics")
-    public ResponseEntity<Map<String, BigDecimal>> getCategoryStatistics(@RequestParam @Nullable String userId,
-                                                                         @RequestParam @Nullable LocalDate startDate,
-                                                                         @RequestParam @Nullable LocalDate endDate,
-                                                                         @RequestParam @NotNull Currency currency) {
-        return ResponseEntity.ok(paymentHistoryService.getCategoryStatistics(userId, startDate, endDate, currency));
+    public ResponseEntity<Map<String, BigDecimal>>
+    getCategoryStatistics(@RequestParam @Nullable String userId,
+                          @RequestParam @Nullable LocalDate startDate,
+                          @RequestParam @Nullable LocalDate endDate,
+                          @RequestParam @NotNull Currency currency) {
+        return ResponseEntity.ok(paymentHistoryService.getCategoryStatistics(null, userId, startDate, endDate, currency));
+    }
+
+    @GetMapping("/merchant-category-statistics")
+    public ResponseEntity<Map<String, BigDecimal>>
+    getMerchantCategoryStatistics(@RequestHeader(value = "agent-id") String agentId,
+                                  @RequestParam @Nullable String userId,
+                                  @RequestParam @Nullable LocalDate startDate,
+                                  @RequestParam @Nullable LocalDate endDate,
+                                  @RequestParam @NotNull Currency currency) {
+        return ResponseEntity.ok(paymentHistoryService.getCategoryStatistics(Long.valueOf(agentId), userId, startDate,
+                endDate, currency));
     }
 
     @GetMapping("/service-statistics")
